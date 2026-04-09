@@ -1,0 +1,77 @@
+{
+    "version": 1,
+    "name": "CustomInput",
+    "maps": [
+        {
+            "name": "Player",
+            "id": "ac7cd2ac-f922-45a0-927f-0a68ddd3f46e",
+            "actions": [
+                {
+                    "name": "Press",
+                    "type": "Button",
+                    "id": "58e7f72b-7215-4908-8a41-c32fd5d3182f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Drag",
+                    "type": "Value",
+                    "id": "207064de-1b54-41ba-9369-8280ab3436b6",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "468ebe85-8e8a-4fca-b570-29afde99a61a",
+                    "path": "<Mouse>/press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Press",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "One Modifier",
+                    "id": "cd9bdf8e-6a99-4f2d-aa91-57fa06ebe8b3",
+                    "path": "OneModifier(modifiersOrder=1)",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drag",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "Modifier",
+                    "id": "0bd5bcf8-77df-4ea1-8635-b583a26c599e",
+                    "path": "<Mouse>/press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drag",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "Binding",
+                    "id": "b5eb23fb-1f22-4122-973c-74ee63670cad",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drag",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
