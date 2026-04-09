@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0e051ffae7e9ab44b06178d22fe536a, type: 3}
+  m_Name: SwordGenerator
+  m_EditorClassIdentifier: Assembly-CSharp::SOWeaponGeneration
+  _baseValue: 20
+  _sprite: {fileID: 8219144209169388399, guid: 9966abb6bb5d5894b8161bd9c8df587a, type: 3}
+  _weaponType: 0
+  _minDamage: 2
+  _maxDamage: 18
+  _damageValueMultiplier: 3
+  _material: Iron
+  _effect: 
