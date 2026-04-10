@@ -43,12 +43,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1952628746559971320}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f47f04512ba1d9d48b5e3092bf67698d, type: 3}
+  m_Script: {fileID: 11500000, guid: 19ed650c3652fd943937edae1b37e707, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Item
   _itemSO: {fileID: 11400000, guid: 5ec45e60909668144bf28e1abcc5943c, type: 2}
   _circleCollider: {fileID: 111473435298633954}
-  _snapRadius: 0.2
+  _snapRadius: 0.3
   _layerMask:
     serializedVersion: 2
     m_Bits: 64

@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9fed213f71c3a9e43b765c60c32c8ffe, type: 3}
-  m_Name: HelmetGenerator
+  m_Name: ChestplateGenerator
   m_EditorClassIdentifier: Assembly-CSharp::SOArmorGeneration
-  _baseValue: 15
+  _baseValue: 50
   _sprite: {fileID: 5288369659136519808, guid: 9966abb6bb5d5894b8161bd9c8df587a, type: 3}
-  _material: 0
-  _materialValueMultiplier: 8
+  _material: -1
+  _materialValueMultiplier: 12
   _effect: 
-  _armorType: 4
-  _minResistance: 8
-  _maxResistance: 30
+  _armorType: 0
+  _minResistance: 10
+  _maxResistance: 50
   _resistanceValueMultiplier: 2

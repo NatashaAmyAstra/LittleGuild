@@ -14,7 +14,7 @@ public class NPCBehaviour : MonoBehaviour
 
     // references
     [SerializeField] private Inventory _inventory;
-    [SerializeField] private ItemMount _itemMount;
+    [SerializeField] private ItemDisplay _itemDisplay;
     [SerializeField] private float _walkSpeed;
     [SerializeField] private float _idleDuration;
 
@@ -104,7 +104,7 @@ public class NPCBehaviour : MonoBehaviour
     // behaviour describing the browsing state
     private void Browse() {
         // purchase the item NPC is holding
-        if(_itemMount.Item != null)
+        if(_itemDisplay.Item != null)
         {
             SetState(NPCState.checkingOut, _counterNode);
             return;
@@ -153,7 +153,7 @@ public class NPCBehaviour : MonoBehaviour
 
         if(shelf.Price <= _inventory.Balance)
         {
-            _itemMount.PlaceItem(shelf.GrabItem());
+            _itemDisplay.PlaceItem(shelf.GrabItem());
         }
     }
 
@@ -170,12 +170,12 @@ public class NPCBehaviour : MonoBehaviour
 
         // puchace item
         CounterNode counter = (CounterNode)_destinationNode;
-        int price = _itemMount.Item.Value;
+        int price = _itemDisplay.Item.Value;
         counter.PayForItem(price, _inventory);
 
         // place item in inventory and remove gameobject representation of item
-        _inventory.PlaceItem(_itemMount.Item.ScriptableObject);
-        _itemMount.Item.DestroyItem();
+        _inventory.PlaceItem(_itemDisplay.Item.ScriptableObject);
+        _itemDisplay.Item.DestroyItem();
 
         SetState(NPCState.leaving, _exitNode);
     }

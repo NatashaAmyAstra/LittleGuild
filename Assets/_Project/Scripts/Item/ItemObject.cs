@@ -1,31 +1,33 @@
 using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer), typeof(CircleCollider2D))]
-public class Item : MoveableObject
+public class ItemObject : MoveableObjectBase
 {
     // stats come from scriptable object
-    [SerializeField] private SOItem _itemSO;
+    private Item _item;
     [SerializeField] private CircleCollider2D _circleCollider;
     [SerializeField] private float _snapRadius;
     [SerializeField] private LayerMask _layerMask = 6;
     [SerializeField] private bool _playerCanDragItem = true;
 
     // stat properties
-    public SOItem ScriptableObject { get { return _itemSO; } set { } }
-
-    public Sprite Sprite { get { return _itemSO.Sprite; } }
-    public int Value { get { return _itemSO.Value; } }
-    public SOItem.ItemType Type { get { return _itemSO.Type; } set { } }
+    public Item ScriptableObject { get { return _item; } set { } }
+    public Sprite Sprite { get { return _item.Sprite; } }
+    public int Value { get { return _item.Value; } }
+    public System.Type Type { get { return _item.GetType(); } set { } }
 
     [SerializeField] private SpriteRenderer _itemRenderer;
 
-    private void Awake() {
-        Setup(_itemSO);
+    private void Start() {
+        if(_item != null)
+            return;
+
+        Setup(GearGenerator.main.GenerateItem());
     }
 
-    public void Setup(SOItem item, bool playerCanDragItem = true) {
-        _itemSO = item;
-        _itemRenderer.sprite = _itemSO.Sprite;
+    public void Setup(Item item, bool playerCanDragItem = true) {
+        _item = item;
+        _itemRenderer.sprite = _item.Sprite;
 
         _playerCanDragItem = playerCanDragItem;
     }
@@ -35,7 +37,7 @@ public class Item : MoveableObject
         Destroy(gameObject);
     }
 
-    public override MoveableObject GrabObject() {
+    public override MoveableObjectBase GrabObject() {
         if(_playerCanDragItem == false)
             return null;
 
@@ -58,10 +60,10 @@ public class Item : MoveableObject
             return;
 
         // select the closest mount
-        ItemContainer container = null;
+        ItemContainerBase container = null;
         for(int i = 0; i < containerColliders.Length; i++)
         {
-            ItemContainer testContainer = containerColliders[i].GetComponent<ItemContainer>();
+            ItemContainerBase testContainer = containerColliders[i].GetComponent<ItemContainerBase>();
 
             if(container != null)
             {

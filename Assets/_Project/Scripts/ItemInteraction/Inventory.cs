@@ -8,8 +8,8 @@ public class Inventory : MonoBehaviour
 
     [SerializeField] private int _gold;
     [SerializeField] private bool _playerCanDragItem = false;
-    [SerializeField] private List<SOItem> _contents = new List<SOItem>();
     [SerializeField] private int _space = 20;
+    private List<Item> _contents = new List<Item>();
 
     public int Balance { get { return _gold; } set { } }
     public bool PlayerCanDragItem { get { return _playerCanDragItem; } set { } }
@@ -38,17 +38,17 @@ public class Inventory : MonoBehaviour
 
 
     // return item without removing it from the inventory
-    public SOItem PeekItem(int index = 0) {
+    public Item PeekItem(int index = 0) {
         return _contents[index];
     }
 
-    public SOItem[] PeekItems() {
+    public Item[] PeekItems() {
         return _contents.ToArray();
     }
 
 
     // handle adding and removing items from inventory
-    public void PlaceItem(SOItem item) {
+    public void PlaceItem(Item item) {
         if(item == null)
             return;
 
@@ -59,23 +59,22 @@ public class Inventory : MonoBehaviour
         OnInventoryUpdated?.Invoke();
     }
 
-    public void PlaceItems(SOItem[] items) {
+    public void PlaceItems(Item[] items) {
         if(items == null)
             return;
 
-        foreach (SOItem item in items)
+        foreach (Item item in items)
         {
             PlaceItem(item);
         }
     }
 
-
-    private void RemoveItem(SOItem item) {
+    private void RemoveItem(Item item) {
         _contents.RemoveAt(_contents.IndexOf(item));
         OnInventoryUpdated?.Invoke();
     }
 
-    public SOItem TakeItem(SOItem item) {
+    public Item TakeItem(Item item) {
         if(item == null)
             return null;
 
@@ -86,22 +85,22 @@ public class Inventory : MonoBehaviour
             return null;
         }
 
-        SOItem result = _contents[index];
+        Item result = _contents[index];
         RemoveItem(_contents[index]);
 
         return result;
     }
 
-    public SOItem TakeItemByIndex(int index) {
+    public Item TakeItemByIndex(int index) {
         if(index >= _contents.Count)
             return null;
 
         return TakeItem(_contents[index]);
     }
 
-    public SOItem[] TakeItems(SOItem[] items) {
-        List<SOItem> result = new List<SOItem>();
-        foreach (SOItem item in items)
+    public Item[] TakeItems(Item[] items) {
+        List<Item> result = new List<Item>();
+        foreach (Item item in items)
         {
             result.Add(TakeItem(item));
         }
@@ -109,8 +108,8 @@ public class Inventory : MonoBehaviour
         return result.ToArray();
     }
 
-    public SOItem[] TakeItemsByCount(int count) {
-        List<SOItem> result = new List<SOItem>();
+    public Item[] TakeItemsByCount(int count) {
+        List<Item> result = new List<Item>();
         for(int i = 0; i < count; i++)
         {
             result.Add(TakeItemByIndex(_contents.Count - 1));
@@ -119,8 +118,8 @@ public class Inventory : MonoBehaviour
         return result.ToArray();
     }
 
-    public SOItem[] TakeItemsByIndex(int[] indices) {
-        List<SOItem> result = new List<SOItem>();
+    public Item[] TakeItemsByIndex(int[] indices) {
+        List<Item> result = new List<Item>();
         foreach(int i in indices)
         {
             if(i >= _contents.Count)
@@ -129,7 +128,7 @@ public class Inventory : MonoBehaviour
             result.Add(_contents[i]);
         }
 
-        foreach(SOItem item in result)
+        foreach(Item item in result)
         {
             RemoveItem(item);
         }
@@ -137,11 +136,11 @@ public class Inventory : MonoBehaviour
         return result.ToArray();
     }
 
-    public void GiveItemToInventory(SOItem item, Inventory recipient) {
+    public void GiveItemToInventory(Item item, Inventory recipient) {
         recipient.PlaceItem(TakeItem(item));
     }
 
-    public void ReceiveItemFromInventory(SOItem item, Inventory recipient) {
+    public void ReceiveItemFromInventory(Item item, Inventory recipient) {
         PlaceItem(recipient.TakeItem(item));
     }
 }

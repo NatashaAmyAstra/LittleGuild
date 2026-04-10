@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "WeaponGenerationStats", menuName = "Weapon Generation Stats")]
-public class SOWeaponGeneration : SOItemGenerationBase
+public class SOWeaponGeneration : SOGearBase
 {
     public enum WeaponType {
         sword,
@@ -11,22 +11,23 @@ public class SOWeaponGeneration : SOItemGenerationBase
         bow
     }
 
+    [Header("Weapon")]
     [SerializeField] private WeaponType _weaponType;
-
-    [Header("Damage")]
     [SerializeField] private int _minDamage;
     [SerializeField] private int _maxDamage;
     [SerializeField] private int _damageValueMultiplier;
 
-    [Header("Additional")]
-    [SerializeField] private string _material;
-    [SerializeField] private string _effect;
+    public override Item Generate() {
+        base.GenerateGearStats();
 
-    public WeaponType Type { get { return _weaponType; } set { } }
-    public int MinDamage { get { return _minDamage; } set { } }
-    public int MaxDamage { get { return _maxDamage; } set { } }
-    public int DamageValueMultiplier { get { return _damageValueMultiplier; } set { } }
-    public string Material { get { return _material; } set { } }
-    public string Effect { get { return _effect; } set { } }
+        int damage = Random.Range(_minDamage, _maxDamage);
 
+        int value = _baseValue;
+        value += damage * _damageValueMultiplier;
+        value += (int)_material * _materialValueMultiplier;
+
+        WeaponItem weapon = new WeaponItem(_weaponType, _material, _sprite, damage, value);
+        
+        return weapon;
+    }
 }

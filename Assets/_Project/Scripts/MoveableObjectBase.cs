@@ -1,13 +1,13 @@
 using UnityEngine;
 
-public abstract class MoveableObject : MonoBehaviour
+public abstract class MoveableObjectBase : MonoBehaviour
 {
-    public delegate void OnObjectHeldDropped(MoveableObject moveableObject);
+    public delegate void OnObjectHeldDropped(MoveableObjectBase moveableObject);
     public event OnObjectHeldDropped OnObjectPickedUp;
     public event OnObjectHeldDropped OnObjectDropped;
 
 
-    public virtual MoveableObject GrabObject() {
+    public virtual MoveableObjectBase GrabObject() {
         OnObjectPickedUp?.Invoke(this);
         return this;
     }

@@ -4,10 +4,23 @@ using UnityEngine.InputSystem.Controls;
 
 public class InputManager : MonoBehaviour
 {
+    public static InputManager main;
+
     [SerializeField] private Transform testObject;
     private CustomInput _input;
 
     private void Awake() {
+        SetSingleton();
+    }
+
+    private void SetSingleton() {
+        if(main == null)
+            main = this;
+        else
+            Destroy(this);
+    }
+
+    private void OnEnable() {
         _input = new CustomInput();
         _input.Enable();
 
@@ -16,7 +29,11 @@ public class InputManager : MonoBehaviour
         _input.Player.Drag.performed += Drag;
     }
 
-    private MoveableObject _object;
+    private void OnDisable() {
+        _input.Disable();
+    }
+
+    private MoveableObjectBase _object;
     private Vector3 _clickOffset;
 
     private void Press(InputAction.CallbackContext value) {
@@ -26,7 +43,7 @@ public class InputManager : MonoBehaviour
 
         foreach(Collider2D hit in hits)
         {
-            if(hit.TryGetComponent(out MoveableObject moveableObject))
+            if(hit.TryGetComponent(out MoveableObjectBase moveableObject))
             {
                 _object = moveableObject;
                 _clickOffset = moveableObject.transform.position - mousePosition;

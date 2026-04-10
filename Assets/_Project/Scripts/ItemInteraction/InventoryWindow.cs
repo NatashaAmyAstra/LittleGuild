@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class InventoryWindow : ItemContainer
+public class InventoryWindow : ItemContainerBase
 {
     [SerializeField] private GameObject _inventoryWindow;
     [SerializeField] private Collider2D _inventoryCollider;
@@ -12,21 +12,21 @@ public class InventoryWindow : ItemContainer
     private Vector3 _inventoryCenterPoint;
     
     private Inventory _selectedInventory;
-    private List<Item> _displayedItems = new List<Item>();
+    private List<ItemObject> _displayedItems = new List<ItemObject>();
 
 
-    public override void PlaceItem(Item item) {
+    public override void PlaceItem(ItemObject item) {
         base.PlaceItem(item);
         _displayedItems.Add(item);
         _selectedInventory.PlaceItem(item.ScriptableObject);
     }
 
-    public override Item TakeItem(Item item) {
+    public override ItemObject TakeItem(ItemObject item) {
         RemoveItem(item);
         return item;
     }
 
-    protected override void RemoveItem(Item item) {
+    protected override void RemoveItem(ItemObject item) {
         base.RemoveItem(item);
         _displayedItems.Remove(item);
         _selectedInventory.TakeItem(item.ScriptableObject);
@@ -100,7 +100,7 @@ public class InventoryWindow : ItemContainer
     }
 
     private void RemoveItems() {
-        foreach(Item item in _displayedItems)
+        foreach(ItemObject item in _displayedItems)
         {
             Destroy(item.gameObject);
         }
@@ -108,8 +108,8 @@ public class InventoryWindow : ItemContainer
     }
 
     private void SpawnItems() {
-        SOItem[] SOItems = _selectedInventory.PeekItems();
-        foreach(SOItem item in SOItems)
+        Item[] items = _selectedInventory.PeekItems();
+        foreach(Item item in items)
         {
             Vector3 randomPos = _inventoryItemBounds;
             randomPos.x *= (Random.value - 0.5f) * 2;
@@ -119,7 +119,7 @@ public class InventoryWindow : ItemContainer
             bool canDrag = _selectedInventory.PlayerCanDragItem;
 
             GameObject spawnedObject = _itemInstantiator.InstantiateItem(item, randomPos, transform, canDrag);
-            PlaceItem(spawnedObject.GetComponent<Item>());
+            PlaceItem(spawnedObject.GetComponent<ItemObject>());
         }
     }
 }

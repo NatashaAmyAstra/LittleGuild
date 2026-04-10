@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfNode
   _initialItem: {fileID: 0}
-  _itemMount: {fileID: 3950369017253699755}
+  _itemDisplay: {fileID: 3950369017253699755}
 --- !u!1 &7871683218001331394
 GameObject:
   m_ObjectHideFlags: 0
@@ -151,7 +151,7 @@ GameObject:
   - component: {fileID: 3950369017253699755}
   - component: {fileID: 6749193064503012266}
   m_Layer: 6
-  m_Name: ItemMount
+  m_Name: ItemDisplay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -181,7 +181,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9134614397072761638}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41c464cb43975b84c8f40fa7e8f1a011, type: 3}
+  m_Script: {fileID: 11500000, guid: deb59a3e6401e924c8209de96f641080, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemMount
 --- !u!58 &6749193064503012266

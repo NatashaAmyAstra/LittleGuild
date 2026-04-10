@@ -1,11 +1,11 @@
 using UnityEngine;
 
-public class ItemMount : ItemContainer
+public class ItemDisplay : ItemContainerBase
 {
-    private Item _heldItem = null;
-    public Item Item { get { return _heldItem; } set { } }
+    private ItemObject _heldItem = null;
+    public ItemObject Item { get { return _heldItem; } set { } }
 
-    public override void PlaceItem(Item item) {
+    public override void PlaceItem(ItemObject item) {
         base.PlaceItem(item);
 
         _heldItem = item;
@@ -13,12 +13,12 @@ public class ItemMount : ItemContainer
         item.transform.parent = transform;
     }
 
-    public override Item TakeItem(Item item) {
+    public override ItemObject TakeItem(ItemObject item) {
         RemoveItem(item);
         return item;
     }
 
-    public Item TakeItem() {
+    public ItemObject TakeItem() {
         return TakeItem(_heldItem);
     }
 
@@ -26,7 +26,7 @@ public class ItemMount : ItemContainer
         return _heldItem == null;
     }
 
-    protected override void RemoveItem(Item item) {
+    protected override void RemoveItem(ItemObject item) {
         base.RemoveItem(item);
         _heldItem = null;
     }

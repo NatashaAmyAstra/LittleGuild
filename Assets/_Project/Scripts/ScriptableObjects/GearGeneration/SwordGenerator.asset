@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SOWeaponGeneration
   _baseValue: 20
   _sprite: {fileID: 8219144209169388399, guid: 9966abb6bb5d5894b8161bd9c8df587a, type: 3}
+  _material: 0
+  _materialValueMultiplier: 16
+  _effect: 
   _weaponType: 0
   _minDamage: 2
   _maxDamage: 18
   _damageValueMultiplier: 3
-  _material: Iron
-  _effect: 

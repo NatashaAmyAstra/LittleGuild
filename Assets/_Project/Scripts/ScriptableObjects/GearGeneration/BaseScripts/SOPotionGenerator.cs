@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
+using static SOGearBase;
 
 [CreateAssetMenu(fileName = "PotionGenerationStats", menuName = "Potion Generation Stats")]
-public class SOPotionGenerator : SOItemGenerationBase
+public class SOPotionGenerator : SOItemGeneratorBase
 {
     public enum PotionEffect
     {
@@ -18,13 +20,22 @@ public class SOPotionGenerator : SOItemGenerationBase
         grand
     }
 
+    [Header("Potion")]
     [SerializeField] private PotionEffect _type;
 
-    [Header("Quality")]
-    [SerializeField] private PotionQuality _quality;
+    private PotionQuality _quality;
     [SerializeField] private int _qualityValueMultiplier;
 
-    public PotionEffect Type { get { return _type; } set { } }
-    public PotionQuality Quality { get { return _quality; } set { } }
-    public int QualityValueMultiplier { get { return _qualityValueMultiplier; } set { } }
+    public override Item Generate() {
+        PotionQuality[] potionQualities = (PotionQuality[])Enum.GetValues(typeof(PotionQuality));
+        int index = UnityEngine.Random.Range(0, potionQualities.Length);
+        _quality = potionQualities[index];
+
+        int value = _baseValue;
+        value += _qualityValueMultiplier * (int)_quality;
+
+        PotionItem potion = new PotionItem(_type, _quality, _sprite, value);
+
+        return potion;
+    }
 }

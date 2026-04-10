@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class ShelfNode : WalkNode
 {
-    [SerializeField] private Item _initialItem;
-    [SerializeField] private ItemMount _itemMount;
+    [SerializeField] private ItemObject _initialItem;
+    [SerializeField] private ItemDisplay _itemDisplay;
 
-    public Item Item { get { return _itemMount.Item; } set { } }
-    public int Price { get { return _itemMount.Item.Value; } set { } }
+    public ItemObject Item { get { return _itemDisplay.Item; } set { } }
+    public int Price { get { return _itemDisplay.Item.Value; } set { } }
 
     private void Start() {
         PlaceInitialItem();
@@ -15,10 +15,10 @@ public class ShelfNode : WalkNode
     private void PlaceInitialItem() {
         if(_initialItem == null)
             return;
-        _itemMount.PlaceItem(_initialItem);
+        _itemDisplay.PlaceItem(_initialItem);
     }
 
-    public Item GrabItem() {
-        return _itemMount.TakeItem();
+    public ItemObject GrabItem() {
+        return _itemDisplay.TakeItem();
     }
 }

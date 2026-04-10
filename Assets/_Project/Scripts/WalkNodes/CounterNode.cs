@@ -9,7 +9,7 @@ public class CounterNode : WalkNode
         _inventory.ReceivePaymentFromInventory(value, payee);
     }
 
-    public void SellItem(SOItem item, Inventory sellerInventory) {
+    public void SellItem(Item item, Inventory sellerInventory) {
         _inventory.PlaceItem(item);
         _inventory.PayToInventory(item.Value, sellerInventory);
     }

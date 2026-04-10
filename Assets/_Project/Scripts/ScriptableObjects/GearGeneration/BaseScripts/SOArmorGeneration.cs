@@ -1,7 +1,8 @@
 using UnityEngine;
+using static SOWeaponGeneration;
 
 [CreateAssetMenu(fileName = "ArmorGenerationStats", menuName = "Armor Generation Stats")]
-public class SOArmorGeneration : SOItemGenerationBase
+public class SOArmorGeneration : SOGearBase
 {
     public enum ArmorType
     {
@@ -12,22 +13,23 @@ public class SOArmorGeneration : SOItemGenerationBase
         helmet
     }
 
+    [Header("Armor")]
     [SerializeField] private ArmorType _armorType;
-
-    [Header("Resistance")]
     [SerializeField] private int _minResistance;
     [SerializeField] private int _maxResistance;
     [SerializeField] private int _resistanceValueMultiplier;
 
-    [Header("Additional")]
-    [SerializeField] private string _material;
-    [SerializeField] private string _effectResistance;
+    public override Item Generate() {
+        base.GenerateGearStats();
 
-    public ArmorType Type { get { return _armorType; } set { } }
-    public int MinResistance { get { return _minResistance; } set { } }
-    public int MaxResistance { get { return _maxResistance; } set { } }
-    public int ResistanceValueMultiplier { get { return _resistanceValueMultiplier; } set { } }
-    public string Material { get { return _material; } set { } }
-    public string EffectResistance { get { return _effectResistance; } set { } }
+        int resistance = Random.Range(_minResistance, _maxResistance);
 
+        int value = _baseValue;
+        value += resistance * _resistanceValueMultiplier;
+        value += (int)_material * _materialValueMultiplier;
+
+        ArmorItem armor = new ArmorItem(_armorType, _material, _sprite, resistance, value);
+
+        return armor;
+    }
 }
