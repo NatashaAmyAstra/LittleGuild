@@ -9,21 +9,37 @@ public class Inventory : MonoBehaviour
     [SerializeField] private int _gold;
     [SerializeField] private bool _playerCanDragItem = false;
     [SerializeField] private int _space = 20;
-    private List<Item> _contents = new List<Item>();
+    private Item[] _contents;
 
+    #region Properties
     public int Balance { get { return _gold; } set { } }
     public bool PlayerCanDragItem { get { return _playerCanDragItem; } set { } }
-    public int GetCount { get { return _contents.Count; } set { } }
-    public int GetFreeSpace { get { return _space - _contents.Count; } set { } }
+    public int GetItemCount { get { return _contents.Length - GetFreeSpace; } set { } }
+    public int GetFreeSpace { get {
+            int count = 0;
+            foreach(Item item in _contents)
+                if(item == null)
+                    count++;
+            return count;
+        } set { } }
+    #endregion
 
+    private void Awake() {
+        _contents = new Item[_space];
+    }
 
+    private int GetIndex(Item item) {
+        return Array.IndexOf(_contents, item);
+    }
+
+    #region Gold handling
     // handle exchanging of gold
-    public void PayUp(int payment) {
+    public void Pay(int payment) {
         _gold -= payment;
     }
 
     public void PayToInventory(int payment, Inventory recipient) {
-        PayUp(payment);
+        Pay(payment);
         recipient.ReceivePayment(payment);
     }
 
@@ -33,52 +49,78 @@ public class Inventory : MonoBehaviour
 
     public void ReceivePaymentFromInventory(int payment, Inventory payee) {
         ReceivePayment(payment);
-        payee.PayUp(payment);
+        payee.Pay(payment);
     }
+    #endregion
 
-
+    #region Peek items
     // return item without removing it from the inventory
     public Item PeekItem(int index = 0) {
         return _contents[index];
     }
 
     public Item[] PeekItems() {
-        return _contents.ToArray();
+        return _contents;
     }
+    #endregion
 
-
-    // handle adding and removing items from inventory
+    #region Add to inventory
+    // Adding item(s) to the inventory
     public void PlaceItem(Item item) {
         if(item == null)
             return;
 
-        if(_contents.IndexOf(item) >= 0)
+        if(GetIndex(item) >= 0)
             return;
 
-        _contents.Add(item);
-        OnInventoryUpdated?.Invoke();
+        if(GetFreeSpace <= 0)
+            return;
+
+        for(int i = 0; i < _contents.Length; i++)
+        {
+            if(_contents[i] != null)
+                continue;
+
+            _contents[i] = item;
+            OnInventoryUpdated?.Invoke();
+            return;
+        }
+
+        throw new Exception($"Could not find free space in {name}");
     }
 
     public void PlaceItems(Item[] items) {
         if(items == null)
             return;
 
+        if(items.Length > GetFreeSpace)
+            throw new Exception($"Could not add items to {name}. This action would exceed the inventory capacity");
+
         foreach (Item item in items)
         {
             PlaceItem(item);
         }
     }
+    #endregion
 
+    #region Remove from inventory
+    // removes item from inventory
     private void RemoveItem(Item item) {
-        _contents.RemoveAt(_contents.IndexOf(item));
+        _contents[GetIndex(item)] = null;
         OnInventoryUpdated?.Invoke();
     }
 
+
+    // removes and returns specific item
+    // selected by different methods:
+    // specific item,
+    // item at specific index,
+    // first X amount of items in the inventory
     public Item TakeItem(Item item) {
         if(item == null)
             return null;
 
-        int index = _contents.IndexOf(item);
+        int index = GetIndex(item);
 
         if(index < 0)
         {
@@ -92,7 +134,7 @@ public class Inventory : MonoBehaviour
     }
 
     public Item TakeItemByIndex(int index) {
-        if(index >= _contents.Count)
+        if(index >= _contents.Length)
             return null;
 
         return TakeItem(_contents[index]);
@@ -112,7 +154,7 @@ public class Inventory : MonoBehaviour
         List<Item> result = new List<Item>();
         for(int i = 0; i < count; i++)
         {
-            result.Add(TakeItemByIndex(_contents.Count - 1));
+            result.Add(TakeItemByIndex(_contents.Length - 1));
         }
 
         return result.ToArray();
@@ -122,7 +164,7 @@ public class Inventory : MonoBehaviour
         List<Item> result = new List<Item>();
         foreach(int i in indices)
         {
-            if(i >= _contents.Count)
+            if(i >= _contents.Length)
                 continue;
 
             result.Add(_contents[i]);
@@ -135,7 +177,10 @@ public class Inventory : MonoBehaviour
 
         return result.ToArray();
     }
+    #endregion
 
+    #region Exchange between inventories
+    // exchange items directly between two known inventories
     public void GiveItemToInventory(Item item, Inventory recipient) {
         recipient.PlaceItem(TakeItem(item));
     }
@@ -143,4 +188,5 @@ public class Inventory : MonoBehaviour
     public void ReceiveItemFromInventory(Item item, Inventory recipient) {
         PlaceItem(recipient.TakeItem(item));
     }
+    #endregion
 }

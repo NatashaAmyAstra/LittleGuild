@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
 
 public class InputManager : MonoBehaviour
 {
@@ -20,6 +19,7 @@ public class InputManager : MonoBehaviour
             Destroy(this);
     }
 
+    #region Enable and disable input system
     private void OnEnable() {
         _input = new CustomInput();
         _input.Enable();
@@ -32,7 +32,9 @@ public class InputManager : MonoBehaviour
     private void OnDisable() {
         _input.Disable();
     }
+    #endregion
 
+    #region Mouse controlls
     private MoveableObjectBase _object;
     private Vector3 _clickOffset;
 
@@ -45,10 +47,12 @@ public class InputManager : MonoBehaviour
         {
             if(hit.TryGetComponent(out MoveableObjectBase moveableObject))
             {
-                _object = moveableObject;
+                _object = moveableObject.GrabObject();
+                if(_object == null)
+                    continue;
+
                 _clickOffset = moveableObject.transform.position - mousePosition;
 
-                moveableObject.GrabObject();
                 return;
             }
         }
@@ -71,4 +75,5 @@ public class InputManager : MonoBehaviour
         newPosition += _clickOffset;
         _object.DragObject(newPosition);
     }
+    #endregion
 }

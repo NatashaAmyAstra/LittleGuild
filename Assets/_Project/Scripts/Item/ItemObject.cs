@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer), typeof(CircleCollider2D))]
@@ -14,11 +15,12 @@ public class ItemObject : MoveableObjectBase
     public Item ScriptableObject { get { return _item; } set { } }
     public Sprite Sprite { get { return _item.Sprite; } }
     public int Value { get { return _item.Value; } }
-    public System.Type Type { get { return _item.GetType(); } set { } }
+    public Type Type { get { return _item.GetType(); } set { } }
 
     [SerializeField] private SpriteRenderer _itemRenderer;
 
     private void Start() {
+        // if object is placed without setup instructions, generate a random item
         if(_item != null)
             return;
 
@@ -26,6 +28,7 @@ public class ItemObject : MoveableObjectBase
     }
 
     public void Setup(Item item, bool playerCanDragItem = true) {
+        // set identifying values
         _item = item;
         _itemRenderer.sprite = _item.Sprite;
 
@@ -37,6 +40,7 @@ public class ItemObject : MoveableObjectBase
         Destroy(gameObject);
     }
 
+    #region Inherited methods
     public override MoveableObjectBase GrabObject() {
         if(_playerCanDragItem == false)
             return null;
@@ -49,40 +53,41 @@ public class ItemObject : MoveableObjectBase
         PlaceInClosestContainer();
         base.ReleaseObject();
     }
-
-
+    #endregion
 
 
     private void PlaceInClosestContainer() {
-        // check if there's a mount nearby. Only proceed if at least one is found
+        // check if there's a container nearby. Only proceed if at least one is found
         Collider2D[] containerColliders = Physics2D.OverlapCircleAll(transform.position, _snapRadius, _layerMask);
         if(containerColliders.Length == 0)
             return;
 
-        // select the closest mount
-        ItemContainerBase container = null;
+        // select the closest container
+        ItemContainerBase closestContainer = null;
         for(int i = 0; i < containerColliders.Length; i++)
         {
-            ItemContainerBase testContainer = containerColliders[i].GetComponent<ItemContainerBase>();
+            ItemContainerBase container = containerColliders[i].GetComponent<ItemContainerBase>();
 
-            if(container != null)
+            if(closestContainer != null)
             {
-                float closestContainerDistance = Vector3.Distance(transform.position, container.transform.position);
-                float containerDistance = Vector3.Distance(transform.position, testContainer.transform.position);
+                // ignore container if it's further than currently closest container
+                float closestContainerDistance = Vector3.Distance(transform.position, closestContainer.transform.position);
+                float containerDistance = Vector3.Distance(transform.position, container.transform.position);
                 if(containerDistance > closestContainerDistance)
                     continue;
             }
 
-            if(testContainer != null && testContainer.HasRoom())
+            // if container has room, set closest container
+            if(container != null && container.GetRoom() > 0)
             {
-                container = testContainer;
+                closestContainer = container;
             }
         }
 
-        // place the item on the mount
-        if(container != null)
+        // place the item in the container
+        if(closestContainer != null)
         {
-            container.PlaceItem(this);
+            closestContainer.PlaceItem(this);
         }
     }
 }

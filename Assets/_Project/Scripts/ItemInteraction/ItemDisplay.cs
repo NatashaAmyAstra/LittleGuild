@@ -14,6 +14,9 @@ public class ItemDisplay : ItemContainerBase
     }
 
     public override ItemObject TakeItem(ItemObject item) {
+        if(item != _heldItem)
+            return null;
+
         RemoveItem(item);
         return item;
     }
@@ -22,8 +25,8 @@ public class ItemDisplay : ItemContainerBase
         return TakeItem(_heldItem);
     }
 
-    public override bool HasRoom() {
-        return _heldItem == null;
+    public override int GetRoom() {
+        return _heldItem == null? 1 : 0;
     }
 
     protected override void RemoveItem(ItemObject item) {

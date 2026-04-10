@@ -19,6 +19,7 @@ public class GearGenerator : MonoBehaviour
     }
 
     public Item GenerateItem() {
+        // select a random generator from the list and use it to generate an item
         int selectedIndex = Mathf.FloorToInt(Random.value * _generators.Length);
         _generator = _generators[selectedIndex];
         Item item = _generator.Generate();

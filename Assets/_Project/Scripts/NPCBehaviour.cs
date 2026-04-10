@@ -12,26 +12,22 @@ public class NPCBehaviour : MonoBehaviour
         selling
     }
 
-    // references
     [SerializeField] private Inventory _inventory;
     [SerializeField] private ItemDisplay _itemDisplay;
     [SerializeField] private float _walkSpeed;
     [SerializeField] private float _idleDuration;
+    private float _idleTimer;
 
     // walk nodes
-    private WalkNode[] _walkNodes;
-
-    private Stack<WalkNode> _browseNodes;
     private WalkNode _counterNode;
     private WalkNode _exitNode;
 
+    private Stack<WalkNode> _browseNodes;
     private WalkNode _destinationNode;
 
-    // state variables
+    // state
     [SerializeField] private NPCState _npcState;
     private bool _isWalking = false;
-
-    private float _idleTimer;
     private bool _isIdle = false;
 
 
@@ -48,14 +44,11 @@ public class NPCBehaviour : MonoBehaviour
         }
     }
 
-    // get nodes
     private Stack<WalkNode> GetWalkNodes() {
-        // collect all walk nodes form the scene
-        _walkNodes = FindObjectsByType<WalkNode>();
         Stack<WalkNode> nodeStack = new Stack<WalkNode>();
 
         // sort walk nodes by node type
-        foreach(WalkNode node in _walkNodes)
+        foreach(WalkNode node in WalkNode.Nodes)
         {
             Type type = node.GetType();
             if(type == typeof(ShelfNode))
@@ -75,8 +68,6 @@ public class NPCBehaviour : MonoBehaviour
         return nodeStack;
     }
 
-
-
     private void Update() {
         if(_isIdle)
         {
@@ -84,6 +75,7 @@ public class NPCBehaviour : MonoBehaviour
             return;
         }
 
+        // state machine
         switch(_npcState)
         {
             case NPCState.browsing:

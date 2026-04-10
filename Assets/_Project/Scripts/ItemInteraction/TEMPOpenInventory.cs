@@ -6,6 +6,6 @@ public class TEMPOpenInventory : MonoBehaviour
     [SerializeField] private Inventory _inventory;
 
     private void OnMouseDown() {
-        _inventoryWindow.ToggleWindow(_inventory);
+        _inventoryWindow.Toggle(_inventory);
     }
 }

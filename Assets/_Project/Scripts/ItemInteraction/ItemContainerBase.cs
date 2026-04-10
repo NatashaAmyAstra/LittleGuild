@@ -12,7 +12,7 @@ public abstract class ItemContainerBase : MonoBehaviour
         item.OnObjectPickedUp -= RemoveEventListener;
     }
 
-    public abstract bool HasRoom();
+    public abstract int GetRoom();
 
     protected virtual void RemoveEventListener(MoveableObjectBase item) {
         if(item.GetType() != typeof(ItemObject))
