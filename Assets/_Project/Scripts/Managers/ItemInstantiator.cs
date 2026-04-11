@@ -17,7 +17,7 @@ public class ItemInstantiator : MonoBehaviour
             Destroy(this);
     }
 
-    public GameObject InstantiateItem(Item itemStats, Vector3 position, Transform parent = null, bool playerCanDragItem = true) {
+    public GameObject Instantiate(Item itemStats, Vector3 position, Transform parent = null, bool playerCanDragItem = true) {
         GameObject itemObject = Instantiate(_itemPrefab, position, Quaternion.identity, parent);
         ItemObject item = itemObject.GetComponent<ItemObject>();
         item.Setup(itemStats, playerCanDragItem);

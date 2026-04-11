@@ -30,8 +30,8 @@ public class ItemObject : MoveableObjectBase
     public void Setup(Item item, bool playerCanDragItem = true) {
         // set identifying values
         _item = item;
-        _itemRenderer.sprite = _item.Sprite;
 
+        _itemRenderer.sprite = _item.Sprite;
         _playerCanDragItem = playerCanDragItem;
     }
 

@@ -7,7 +7,6 @@ public class InventoryWindow : ItemContainerBase
     [SerializeField] private GameObject _inventoryWindow;
     [SerializeField] private Collider2D _inventoryCollider;
     [SerializeField] private TextMeshPro _balanceText;
-    [SerializeField] private ItemInstantiator _itemInstantiator;
     [SerializeField] private Vector3 _inventoryItemBounds;
     private Vector3 _centerPoint { get { return _inventoryWindow.transform.position; } set { } }
     
@@ -50,6 +49,9 @@ public class InventoryWindow : ItemContainerBase
         Item[] items = _selectedInventory.PeekItems();
         foreach(Item item in items)
         {
+            if(item == null)
+                continue;
+
             Vector3 randomPos = _inventoryItemBounds;
             randomPos.x *= (Random.value - 0.5f) * 2;
             randomPos.y *= (Random.value - 0.5f) * 2;
@@ -57,7 +59,7 @@ public class InventoryWindow : ItemContainerBase
 
             bool canDrag = _selectedInventory.PlayerCanDragItem;
 
-            GameObject spawnedObject = _itemInstantiator.InstantiateItem(item, randomPos, transform, canDrag);
+            GameObject spawnedObject = ItemInstantiator.main.Instantiate(item, randomPos, transform, canDrag);
             PlaceItem(spawnedObject.GetComponent<ItemObject>());
         }
     }
