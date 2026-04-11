@@ -17,7 +17,7 @@ public class InventoryWindow : ItemContainerBase
     public override void PlaceItem(ItemObject item) {
         base.PlaceItem(item);
         _displayedItems.Add(item);
-        _selectedInventory.PlaceItem(item.ScriptableObject);
+        _selectedInventory.PlaceItem(item.Info);
     }
 
     public override ItemObject TakeItem(ItemObject item) {
@@ -28,7 +28,7 @@ public class InventoryWindow : ItemContainerBase
     protected override void RemoveItem(ItemObject item) {
         base.RemoveItem(item);
         _displayedItems.Remove(item);
-        _selectedInventory.TakeItem(item.ScriptableObject);
+        _selectedInventory.TakeItem(item.Info);
     }
 
     public override int GetRoom() {

@@ -21,6 +21,10 @@ public class ItemDisplay : ItemContainerBase
         return item;
     }
 
+    public Item TakeAndDestroyItem() {
+        return TakeAndDestroyItem(_heldItem);
+    }
+
     public ItemObject TakeItem() {
         return TakeItem(_heldItem);
     }

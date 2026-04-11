@@ -60,7 +60,15 @@ public class Inventory : MonoBehaviour
     }
 
     public Item[] PeekItems() {
-        return _contents;
+        List<Item> items = new List<Item>();
+        foreach(Item item in _contents)
+        {
+            if(item == null)
+                continue;
+            items.Add(item);
+        }
+
+        return items.ToArray();
     }
     #endregion
 

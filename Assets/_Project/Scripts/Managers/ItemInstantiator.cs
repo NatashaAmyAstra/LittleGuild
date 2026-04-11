@@ -23,4 +23,8 @@ public class ItemInstantiator : MonoBehaviour
         item.Setup(itemStats, playerCanDragItem);
         return itemObject;
     }
+
+    public GameObject Instantiate(Item itemStats) {
+        return Instantiate(itemStats, Vector3.zero);
+    }
 }

@@ -8,6 +8,12 @@ public abstract class ItemContainerBase : MonoBehaviour
 
     public abstract ItemObject TakeItem(ItemObject item);
 
+    public virtual Item TakeAndDestroyItem(ItemObject itemObject) {
+        Item item = itemObject.Info;
+        itemObject.DestroyItem();
+        return item;
+    }
+
     protected virtual void RemoveItem(ItemObject item) {
         item.OnObjectPickedUp -= RemoveEventListener;
     }

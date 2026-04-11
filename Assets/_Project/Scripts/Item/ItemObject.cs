@@ -12,7 +12,7 @@ public class ItemObject : MoveableObjectBase
     [SerializeField] private bool _playerCanDragItem = true;
 
     // stat properties
-    public Item ScriptableObject { get { return _item; } set { } }
+    public Item Info { get { return _item; } set { } }
     public Sprite Sprite { get { return _item.Sprite; } }
     public int Value { get { return _item.Value; } }
     public Type Type { get { return _item.GetType(); } set { } }

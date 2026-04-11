@@ -1,4 +1,4 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,225 +6,259 @@ using UnityEngine;
 public class NPCBehaviour : MonoBehaviour
 {
     private enum NPCState {
+        entering,
         browsing,
-        checkingOut,
-        leaving,
-        selling
+        buying,
+        selling,
+        leaving
     }
+
+    private delegate IEnumerator NPCAction();
+    Dictionary<NPCState, NPCAction> NPCActions;
+    private Coroutine _activeCoroutine = null;
 
     [SerializeField] private Inventory _inventory;
     [SerializeField] private ItemDisplay _itemDisplay;
     [SerializeField] private float _walkSpeed;
     [SerializeField] private float _idleDuration;
-    private float _idleTimer;
+    private Queue<Item> _sellQueue = new Queue<Item>();
 
     // walk nodes
-    private WalkNode _counterNode;
-    private WalkNode _exitNode;
+    private CounterNode _counter;
+    private ExitNode _exit;
+    private RoamNode _roamNode;
 
-    private Stack<WalkNode> _browseNodes;
-    private WalkNode _destinationNode;
+    private ShelfNode _targetShelf;
+    private ShelfNode[] _shelves;
 
     // state
-    [SerializeField] private NPCState _npcState;
+    [SerializeField] private NPCState _state = NPCState.entering;
     private bool _isWalking = false;
     private bool _isIdle = false;
 
+    [Header("Placeholder variables")]
+    [SerializeField] private float _itemSellChance;
+    [SerializeField] private float _itemBuyChance;
+    [SerializeField] private float _continueBrowsingChance;
 
-    private void Start() {
-        _idleTimer = _idleDuration;
-        _browseNodes = GetWalkNodes();
-
-        // setting destination to counter if coming in to sell
-        // temporary, until NPC decision making is introducsed
-        if(_npcState == NPCState.selling)
-        {
-            _destinationNode = _counterNode;
-            _isWalking = true;
-        }
-    }
-
-    private Stack<WalkNode> GetWalkNodes() {
-        Stack<WalkNode> nodeStack = new Stack<WalkNode>();
-
-        // sort walk nodes by node type
-        foreach(WalkNode node in WalkNode.Nodes)
-        {
-            Type type = node.GetType();
-            if(type == typeof(ShelfNode))
-            {
-                nodeStack.Push(node);
-            }
-            else if(type == typeof(CounterNode))
-            {
-                _counterNode = node;
-            }
-            else if(type == typeof(ExitNode))
-            {
-                _exitNode = node;
-            }
-        }
-
-        return nodeStack;
-    }
-
-    private void Update() {
-        if(_isIdle)
-        {
-            Idle();
-            return;
-        }
-
-        // state machine
-        switch(_npcState)
-        {
-            case NPCState.browsing:
-                Browse();
-                break;
-            case NPCState.checkingOut:
-                CheckOut();
-                break;
-            case NPCState.leaving:
-                Leave();
-                break;
-            case NPCState.selling:
-                Sell();
-                break;
-        }
-    }
-
-    // behaviour describing the browsing state
-    private void Browse() {
-        // purchase the item NPC is holding
-        if(_itemDisplay.Item != null)
-        {
-            SetState(NPCState.checkingOut, _counterNode);
-            return;
-        }
-
-        if(_isWalking)
-        {
-            WalkToNode();
-        }
-        else
-        {
-            // if there are no browse nodes left at this stage, leave the store
-            if(ChooseNextNode() == false)
-            {
-                SetState(NPCState.leaving, _exitNode);
-                return;
-            }
-
-            // if a position is chosen, start walking to it
-            _isWalking = true;
-        }
-
-        if(IsAtDestinationNode() == false)
-            return;
-
-        _isWalking = false;
-        _isIdle = true;
-
-        GrabItem();
-    }
-
-    private bool ChooseNextNode() {
-        if(_browseNodes.TryPop(out _destinationNode))
-        {
-            _isIdle = true;
+    private bool IsAt(Vector3 destination) {
+        if(destination == null)
             return true;
-        }
-        return false;
-    }
 
-    private void GrabItem() {
-        ShelfNode shelf = (ShelfNode)_destinationNode;
-
-        if(shelf.Item == null)
-            return;
-
-        if(shelf.Price <= _inventory.Balance)
-        {
-            _itemDisplay.PlaceItem(shelf.GrabItem());
-        }
-    }
-
-
-    // behaviour describing the checkingOut state
-    private void CheckOut() {
-        if(_isWalking)
-        {
-            WalkToNode();
-        }
-
-        if(IsAtDestinationNode() == false)
-            return;
-
-        // puchace item
-        CounterNode counter = (CounterNode)_destinationNode;
-        int price = _itemDisplay.Item.Value;
-        counter.PayForItem(price, _inventory);
-
-        // place item in inventory and remove gameobject representation of item
-        _inventory.PlaceItem(_itemDisplay.Item.ScriptableObject);
-        _itemDisplay.Item.DestroyItem();
-
-        SetState(NPCState.leaving, _exitNode);
-    }
-
-
-    // behaviour describing the selling state
-    private void Sell() {
-        if(_isWalking)
-        {
-            WalkToNode();
-        }
-
-        if(IsAtDestinationNode() == false)
-            return;
-
-        CounterNode counter = (CounterNode)_counterNode;
-        counter.SellItem(_inventory.TakeItemByIndex(0), _inventory);
-
-        SetState(NPCState.leaving, _exitNode);
-    }
-
-
-    // behaviour describing the leaving state... duh
-    private void Leave() {
-        WalkToNode();
-    }
-
-    
-    // behavioural methods
-
-    private void SetState(NPCState state, WalkNode destination) {
-        _destinationNode = destination;
-        _isWalking = true;
-
-        _npcState = state;
-        _isIdle = true;
-    }
-
-    private bool IsAtDestinationNode() {
-        if(_destinationNode == null) return true;
-        Vector3 destination = _destinationNode.transform.position;
         return transform.position == destination;
     }
 
-    private void WalkToNode() {
-        Vector3 destination = _destinationNode.transform.position;
-        Vector3 newPosition = Vector3.MoveTowards(transform.position, destination, _walkSpeed * Time.deltaTime);
-        transform.position = newPosition;
+    private IEnumerator MoveTo(Vector3 destination) {
+        while(IsAt(destination) == false)
+        {
+            Vector3 newPosition = Vector3.MoveTowards(transform.position, destination, _walkSpeed * Time.deltaTime);
+            transform.position = newPosition;
+            yield return new WaitForEndOfFrame();
+        }
     }
 
-    private void Idle() {
-        _idleTimer -= Time.deltaTime;
-        if(_idleTimer <= 0)
+    private void SetState(NPCState state, bool idle = true) {
+        _state = state;
+        _isIdle = idle;
+    }
+
+    private void StashObject(ItemObject item) {
+        _inventory.PlaceItem(item.Info);
+        _itemDisplay.TakeAndDestroyItem();
+    }
+
+    private ItemObject Unstash(Item item) {
+        _inventory.TakeItem(item);
+        Transform parent = _itemDisplay.transform;
+        ItemObject itemObject = ItemInstantiator.main.Instantiate(item).GetComponent<ItemObject>();
+        _itemDisplay.PlaceItem(itemObject);
+        return itemObject;
+    }
+
+    // NPC enters shop
+    // decide whether to sell or not
+
+    // has item with value => can choose to sell
+
+    // CHOOSING TO SELL
+    // walk to counter
+    // grab item out of inventory
+    // idle for a bit to show it off
+    // sell item
+    // chance to enter browsing state
+
+
+    // CHOOSING NOT TO SELL
+    // will browse items and add affordable items to buy list
+
+    // after checking all items, randomly choose to end or continue
+    // continue = choose random shelf node and repeat previous step
+
+    // ending means choosing affordable item to buy
+    // none found = leave store
+    // item found = walk to corresponding shelf, grab item =>
+    // walk to counter, puchace item
+    // chance to return to browsing
+
+    private bool WantToSell(Item item) {
+        return Random.value < _itemSellChance / 100;
+    }
+
+    private bool WantToBuy(Item item) {
+        if(item.Value > _inventory.Balance)
+            return false;
+
+        return Random.value < _itemBuyChance / 100;
+    }
+
+    private bool IsWantingToKeepBrowsing() {
+        return Random.value < _continueBrowsingChance / 100;
+    }
+
+    private IEnumerator Entering() {
+        // enter store in a random location
+        yield return MoveTo(_roamNode.Position);
+        yield return new WaitForSeconds(_idleDuration);
+
+        // check inventory for items to sell
+        Item[] items = _inventory.PeekItems();
+        foreach(Item item in items)
         {
-            _idleTimer = _idleDuration;
-            _isIdle = false;
-            return;
+            if(WantToSell(item) == false)
+                continue;
+
+            _sellQueue.Enqueue(item);
         }
+
+        // if an item was found that NPC wants to sell, sell it
+        // otherwise, start browsing the store for things to buy
+        if(_sellQueue.Count > 0)
+        {
+            SetState(NPCState.selling);
+        }
+        else
+        {
+            SetState(NPCState.browsing);
+        }
+
+        _activeCoroutine = null;
+    }
+
+    private IEnumerator Browsing() {
+        // walk to random position
+        yield return MoveTo(_roamNode.Position);
+        yield return new WaitForSeconds(_idleDuration);
+        
+        // check for items to buy
+        foreach(ShelfNode shelf in _shelves)
+        {
+            if(shelf.Item == null)
+                continue;
+
+            Item item = shelf.Item.Info;
+            if(WantToBuy(item) == false)
+                continue;
+
+            // desirable item found, enter buying phase
+            _targetShelf = shelf;
+            SetState(NPCState.buying);
+            _activeCoroutine = null;
+            yield break;
+        }
+
+        // if the NPC wants to keep browsing, the state remains the same
+        // and the browse routine runs again
+        _activeCoroutine = null;
+        if(IsWantingToKeepBrowsing())
+            yield break;
+
+        _state = NPCState.leaving;
+    }
+
+    private IEnumerator Buying() {
+        // walk to shelf and check if it is still available
+        yield return MoveTo(_targetShelf.Position);
+        ItemObject item = _targetShelf.Item;
+        if(item == null)
+        {
+            // if item no longer available, return to browsing state
+            yield return new WaitForSeconds(_idleDuration);
+            SetState(NPCState.browsing);
+            _activeCoroutine = null;
+            yield break;
+        }
+
+        // grab item
+        _itemDisplay.PlaceItem(_targetShelf.GrabItem());
+        yield return new WaitForSeconds(_idleDuration);
+
+        // purchase item at counter
+        yield return MoveTo(_counter.Position);
+        _counter.PayForItem(item.Value, _inventory);
+        StashObject(item);
+
+        // continue looking for items, or leave the store
+        yield return new WaitForSeconds(_idleDuration);
+        if(IsWantingToKeepBrowsing())
+        {
+            _state = NPCState.browsing;
+        }
+        else
+        {
+            _state = NPCState.leaving;
+        }
+
+        _activeCoroutine = null;
+    }
+
+    private IEnumerator Selling() {
+        // walk to counter
+        yield return MoveTo(_counter.Position);
+
+        // sell all items in sell queue
+        while(_sellQueue.Count > 0)
+        {
+            Item item = _sellQueue.Dequeue();
+            Unstash(item);
+            yield return new WaitForSeconds(_idleDuration);
+            _counter.SellItem(_itemDisplay.TakeAndDestroyItem(), _inventory);
+            yield return new WaitForSeconds(_idleDuration);
+        }
+
+        // look for items to buy, or leave the store
+        if(IsWantingToKeepBrowsing())
+        {
+            _state = NPCState.browsing;
+        }
+        else
+        {
+            _state = NPCState.leaving;
+        }
+
+        _activeCoroutine = null;
+    }
+
+    private IEnumerator Leaving() {
+        yield return MoveTo(_exit.Position);
+    }
+
+    private void Start() {
+        NPCActions = new Dictionary<NPCState, NPCAction>() {
+            { NPCState.entering, Entering },
+            { NPCState.browsing, Browsing },
+            { NPCState.buying, Buying },
+            { NPCState.selling, Selling},
+            { NPCState.leaving, Leaving }
+        };
+
+        _counter = WalkNode.GetFirst<CounterNode>();
+        _exit = WalkNode.GetFirst<ExitNode>();
+        _roamNode = WalkNode.GetFirst<RoamNode>();
+        _shelves = WalkNode.GetAll<ShelfNode>();
+    }
+
+    private void Update() {
+        if(_activeCoroutine == null)
+            _activeCoroutine = StartCoroutine(NPCActions[_state].Invoke());
     }
 }
