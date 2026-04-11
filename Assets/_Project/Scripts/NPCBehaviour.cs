@@ -33,8 +33,6 @@ public class NPCBehaviour : MonoBehaviour
 
     // state
     [SerializeField] private NPCState _state = NPCState.entering;
-    private bool _isWalking = false;
-    private bool _isIdle = false;
 
     [Header("Placeholder variables")]
     [SerializeField] private float _itemSellChance;
@@ -57,9 +55,8 @@ public class NPCBehaviour : MonoBehaviour
         }
     }
 
-    private void SetState(NPCState state, bool idle = true) {
+    private void SetState(NPCState state) {
         _state = state;
-        _isIdle = idle;
     }
 
     private void StashObject(ItemObject item) {
@@ -67,38 +64,13 @@ public class NPCBehaviour : MonoBehaviour
         _itemDisplay.TakeAndDestroyItem();
     }
 
-    private ItemObject Unstash(Item item) {
+    private ItemObject TakeFromInventory(Item item) {
         _inventory.TakeItem(item);
         Transform parent = _itemDisplay.transform;
         ItemObject itemObject = ItemInstantiator.main.Instantiate(item).GetComponent<ItemObject>();
         _itemDisplay.PlaceItem(itemObject);
         return itemObject;
     }
-
-    // NPC enters shop
-    // decide whether to sell or not
-
-    // has item with value => can choose to sell
-
-    // CHOOSING TO SELL
-    // walk to counter
-    // grab item out of inventory
-    // idle for a bit to show it off
-    // sell item
-    // chance to enter browsing state
-
-
-    // CHOOSING NOT TO SELL
-    // will browse items and add affordable items to buy list
-
-    // after checking all items, randomly choose to end or continue
-    // continue = choose random shelf node and repeat previous step
-
-    // ending means choosing affordable item to buy
-    // none found = leave store
-    // item found = walk to corresponding shelf, grab item =>
-    // walk to counter, puchace item
-    // chance to return to browsing
 
     private bool WantToSell(Item item) {
         return Random.value < _itemSellChance / 100;
@@ -152,6 +124,9 @@ public class NPCBehaviour : MonoBehaviour
         // check for items to buy
         foreach(ShelfNode shelf in _shelves)
         {
+            if(_inventory.GetFreeSpace == 0)
+                break;
+
             if(shelf.Item == null)
                 continue;
 
@@ -219,9 +194,15 @@ public class NPCBehaviour : MonoBehaviour
         while(_sellQueue.Count > 0)
         {
             Item item = _sellQueue.Dequeue();
-            Unstash(item);
+            TakeFromInventory(item);
             yield return new WaitForSeconds(_idleDuration);
-            _counter.SellItem(_itemDisplay.TakeAndDestroyItem(), _inventory);
+            
+            if(_counter.SellItem(item, _inventory) == false)
+            {
+                _inventory.PlaceItem(item);
+            }
+
+            _itemDisplay.TakeAndDestroyItem();
             yield return new WaitForSeconds(_idleDuration);
         }
 
@@ -240,6 +221,7 @@ public class NPCBehaviour : MonoBehaviour
 
     private IEnumerator Leaving() {
         yield return MoveTo(_exit.Position);
+        Destroy(gameObject);
     }
 
     private void Start() {

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class InventoryWindow : ItemContainerBase
 {
+    public static InventoryWindow main;
+
     [SerializeField] private GameObject _inventoryWindow;
     [SerializeField] private Collider2D _inventoryCollider;
     [SerializeField] private TextMeshPro _balanceText;
@@ -12,6 +14,13 @@ public class InventoryWindow : ItemContainerBase
     
     private Inventory _selectedInventory;
     private List<ItemObject> _displayedItems = new List<ItemObject>();
+
+    private void Awake() {
+        if(main == null)
+            main = this;
+        else
+            Destroy(this);
+    }
 
     #region Inherited methods
     public override void PlaceItem(ItemObject item) {

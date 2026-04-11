@@ -34,22 +34,33 @@ public class Inventory : MonoBehaviour
 
     #region Gold handling
     // handle exchanging of gold
-    public void Pay(int payment) {
+    public bool Pay(int payment) {
+        if(_gold < payment)
+            return false;
+
         _gold -= payment;
+        return true;
     }
 
-    public void PayToInventory(int payment, Inventory recipient) {
-        Pay(payment);
+    public bool PayToInventory(int payment, Inventory recipient) {
+        if(Pay(payment) == false)
+            return false;
+
         recipient.ReceivePayment(payment);
+        return true;
     }
 
     public void ReceivePayment(int payment) {
         _gold += payment;
     }
 
-    public void ReceivePaymentFromInventory(int payment, Inventory payee) {
+    public bool ReceivePaymentFromInventory(int payment, Inventory payee) {
+        if(payee.Balance < payment)
+            return false;
+
         ReceivePayment(payment);
         payee.Pay(payment);
+        return true;
     }
     #endregion
 
@@ -74,15 +85,15 @@ public class Inventory : MonoBehaviour
 
     #region Add to inventory
     // Adding item(s) to the inventory
-    public void PlaceItem(Item item) {
+    public bool PlaceItem(Item item) {
         if(item == null)
-            return;
+            return false;
 
         if(GetIndex(item) >= 0)
-            return;
+            return false;
 
         if(GetFreeSpace <= 0)
-            return;
+            return false;
 
         for(int i = 0; i < _contents.Length; i++)
         {
@@ -91,23 +102,25 @@ public class Inventory : MonoBehaviour
 
             _contents[i] = item;
             OnInventoryUpdated?.Invoke();
-            return;
+            return true;
         }
 
-        throw new Exception($"Could not find free space in {name}");
+        return false;
     }
 
-    public void PlaceItems(Item[] items) {
+    public bool PlaceItems(Item[] items) {
         if(items == null)
-            return;
+            return false;
 
         if(items.Length > GetFreeSpace)
-            throw new Exception($"Could not add items to {name}. This action would exceed the inventory capacity");
+            return false;
 
         foreach (Item item in items)
         {
             PlaceItem(item);
         }
+
+        return true;
     }
     #endregion
 

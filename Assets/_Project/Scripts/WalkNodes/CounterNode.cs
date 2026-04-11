@@ -9,8 +9,14 @@ public class CounterNode : WalkNode
         _inventory.ReceivePaymentFromInventory(value, payee);
     }
 
-    public void SellItem(Item item, Inventory sellerInventory) {
+    public bool SellItem(Item item, Inventory sellerInventory) {
+        if(_inventory.GetFreeSpace == 0)
+            return false;
+
+        if(_inventory.PayToInventory(item.Value, sellerInventory) == false)
+            return false;
+
         _inventory.PlaceItem(item);
-        _inventory.PayToInventory(item.Value, sellerInventory);
+        return true;
     }
 }
