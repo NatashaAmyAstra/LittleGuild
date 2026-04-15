@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class MoveableObjectBase : MonoBehaviour
+public class MoveableObjectBase : MonoBehaviour
 {
     public delegate void OnObjectHeldDropped(MoveableObjectBase moveableObject);
     public event OnObjectHeldDropped OnObjectPickedUp;

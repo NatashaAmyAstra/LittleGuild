@@ -10,7 +10,7 @@ public abstract class ItemContainerBase : MonoBehaviour
 
     public virtual Item TakeAndDestroyItem(ItemObject itemObject) {
         Item item = itemObject.Info;
-        itemObject.DestroyItem();
+        itemObject.Destroy();
         return item;
     }
 

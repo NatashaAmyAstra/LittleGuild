@@ -169,6 +169,12 @@ public class NPCBehaviour : MonoBehaviour
 
         // purchase item at counter
         yield return MoveTo(_counter.Position);
+        if(_itemDisplay.Item == null)
+        {
+            _activeCoroutine = null;
+            yield break;
+        }
+
         _counter.PayForItem(item.Value, _inventory);
         StashObject(item);
 

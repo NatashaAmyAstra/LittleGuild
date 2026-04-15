@@ -7,10 +7,6 @@ public class ItemInstantiator : MonoBehaviour
     [SerializeField] private GameObject _itemPrefab;
 
     private void Awake() {
-        SetSingleton();
-    }
-
-    private void SetSingleton() {
         if(main == null)
             main = this;
         else

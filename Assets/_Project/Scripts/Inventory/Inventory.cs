@@ -6,13 +6,16 @@ public class Inventory : MonoBehaviour
 {
     public event Action OnInventoryUpdated;
 
-    [SerializeField] private int _gold;
+    public Item[] Contents { get { return _contents; } set { } }
+
+    [SerializeField] private int _balance;
     [SerializeField] private bool _playerCanDragItem = false;
     [SerializeField] private int _space = 20;
     private Item[] _contents;
 
+
     #region Properties
-    public int Balance { get { return _gold; } set { } }
+    public int Balance { get { return _balance; } set { } }
     public bool PlayerCanDragItem { get { return _playerCanDragItem; } set { } }
     public int GetItemCount { get { return _contents.Length - GetFreeSpace; } set { } }
     public int GetFreeSpace { get {
@@ -35,10 +38,11 @@ public class Inventory : MonoBehaviour
     #region Gold handling
     // handle exchanging of gold
     public bool Pay(int payment) {
-        if(_gold < payment)
+        if(_balance < payment)
             return false;
 
-        _gold -= payment;
+        _balance -= payment;
+        OnInventoryUpdated?.Invoke();
         return true;
     }
 
@@ -51,7 +55,8 @@ public class Inventory : MonoBehaviour
     }
 
     public void ReceivePayment(int payment) {
-        _gold += payment;
+        _balance += payment;
+        OnInventoryUpdated?.Invoke();
     }
 
     public bool ReceivePaymentFromInventory(int payment, Inventory payee) {
@@ -121,6 +126,16 @@ public class Inventory : MonoBehaviour
         }
 
         return true;
+    }
+
+    public void SwapItems(int index1, int index2) {
+        Item item1 = _contents[index1];
+        Item item2 = _contents[index2];
+
+        _contents[index1] = item2;
+        _contents[index2] = item1;
+
+        OnInventoryUpdated?.Invoke();
     }
     #endregion
 

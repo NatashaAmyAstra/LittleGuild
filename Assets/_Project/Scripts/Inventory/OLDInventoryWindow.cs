@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class InventoryWindow : ItemContainerBase
+public class OLDInventoryWindow : ItemContainerBase
 {
-    public static InventoryWindow main;
+    public static OLDInventoryWindow main;
 
     [SerializeField] private GameObject _inventoryWindow;
     [SerializeField] private Collider2D _inventoryCollider;

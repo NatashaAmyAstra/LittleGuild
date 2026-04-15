@@ -2,14 +2,13 @@ using System;
 using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer), typeof(CircleCollider2D))]
-public class ItemObject : MoveableObjectBase
+public class ItemObject : MonoBehaviour
 {
     // stats come from scriptable object
     private Item _item;
     [SerializeField] private CircleCollider2D _circleCollider;
     [SerializeField] private float _snapRadius;
     [SerializeField] private LayerMask _layerMask = 6;
-    [SerializeField] private bool _playerCanDragItem = true;
 
     // stat properties
     public Item Info { get { return _item; } set { } }
@@ -32,29 +31,12 @@ public class ItemObject : MoveableObjectBase
         _item = item;
 
         _itemRenderer.sprite = _item.Sprite;
-        _playerCanDragItem = playerCanDragItem;
+        PlaceInClosestContainer();
     }
 
-
-    public void DestroyItem() {
+    public void Destroy() {
         Destroy(gameObject);
     }
-
-    #region Inherited methods
-    public override MoveableObjectBase GrabObject() {
-        if(_playerCanDragItem == false)
-            return null;
-
-        transform.parent = null;
-        return base.GrabObject();
-    }
-
-    public override void ReleaseObject() {
-        PlaceInClosestContainer();
-        base.ReleaseObject();
-    }
-    #endregion
-
 
     private void PlaceInClosestContainer() {
         // check if there's a container nearby. Only proceed if at least one is found
